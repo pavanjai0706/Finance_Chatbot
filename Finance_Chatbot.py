@@ -4,41 +4,41 @@ import pdfplumber
 import re
 from transformers import pipeline
 
-# Load AI models
+
 qa_pipeline = pipeline("question-answering", model="deepset/tinyroberta-squad2")
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
-# Extract text from PDF (optimized for better accuracy)
+
 def extract_text_from_pdf(pdf_path):
     text = []
     with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages[:15]:  # Process first 15 pages only
+        for page in pdf.pages[:15]:
             page_text = page.extract_text(x_tolerance=3, y_tolerance=3)
             if page_text:
                 text.append(page_text)
 
     extracted_text = "\n\n".join(text)
     
-    if not extracted_text.strip():  # If no text was extracted
+    if not extracted_text.strip():
         return "No text found in PDF. Try uploading a different file."
     
     return extracted_text
 
-# Extract relevant sections only (to speed up AI processing)
+
 def extract_relevant_text(text, keyword):
     lines = text.split("\n")
     relevant_lines = [line for line in lines if keyword.lower() in line.lower()]
     
-    if not relevant_lines:  # If no direct match, return first 500 words instead
+    if not relevant_lines:
         return " ".join(text.split()[:500])
     
-    return "\n".join(relevant_lines[:5])  # Limit to most relevant lines
+    return "\n".join(relevant_lines[:5])
 
-# Load Excel financial data
+
 def load_excel_data(excel_path):
     return pd.read_excel(excel_path)
 
-# Smarter financial data search (handles variations & years)
+
 def get_financial_data(df, query):
     query = query.lower()
     words = query.split()
@@ -62,7 +62,7 @@ def get_financial_data(df, query):
 
     return f"Best match: {best_match}, but no exact data found."
 
-# Streamlit UI
+
 st.title("Finance Chatbot for 10-K/10-Q Reports")
 
 uploaded_file = st.file_uploader("Upload a PDF or Excel file below", type=["pdf", "xlsx"])
